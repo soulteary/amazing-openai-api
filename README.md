@@ -4,6 +4,12 @@ Convert different model APIs into the OpenAI API format out of the box.
 
 能够将各种不同的模型 API 转换为开箱即用的 OpenAI API 格式。
 
+当前支持模型：
+
+- Azure OpenAI API
+- YI 34B API
+- Google Gemini Pro (WIP)
+
 ## 配置
 
 应用配置：
