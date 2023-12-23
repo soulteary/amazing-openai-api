@@ -3,6 +3,7 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/soulteary/amazing-openai-api/models/azure"
+	"github.com/soulteary/amazing-openai-api/models/gemini"
 	"github.com/soulteary/amazing-openai-api/models/yi"
 )
 
@@ -25,6 +26,13 @@ func RegisterModelRoute(r *gin.Engine, serviceType string) {
 		{
 			apiBasedRouter.Any("/completions", yi.ProxyWithConverter(stripPrefixConverter))
 			apiBasedRouter.Any("/chat/completions", yi.ProxyWithConverter(stripPrefixConverter))
+		}
+	case "gemini":
+		stripPrefixConverter := gemini.NewStripPrefixConverter(apiBase)
+		apiBasedRouter := r.Group(apiBase)
+		{
+			apiBasedRouter.Any("/completions", gemini.ProxyWithConverter(stripPrefixConverter))
+			apiBasedRouter.Any("/chat/completions", gemini.ProxyWithConverter(stripPrefixConverter))
 		}
 	}
 }

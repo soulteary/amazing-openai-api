@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os/signal"
 	"strconv"
-	"strings"
 	"syscall"
 	"time"
 
@@ -15,6 +14,7 @@ import (
 	AoaRouter "github.com/soulteary/amazing-openai-api/internal/router"
 	"github.com/soulteary/amazing-openai-api/internal/version"
 	"github.com/soulteary/amazing-openai-api/models/azure"
+	"github.com/soulteary/amazing-openai-api/models/gemini"
 	"github.com/soulteary/amazing-openai-api/models/yi"
 	"github.com/soulteary/amazing-openai-api/pkg/logger"
 )
@@ -58,7 +58,7 @@ func startDaemon(flags *AoaModel.Flags) {
 
 	AoaRouter.RegisterMiscRoute(router)
 
-	switch strings.ToLower(flags.Type) {
+	switch flags.Type {
 	case "azure":
 		err := azure.Init()
 		if err != nil {
@@ -68,6 +68,11 @@ func startDaemon(flags *AoaModel.Flags) {
 		err := yi.Init()
 		if err != nil {
 			log.Fatalf("初始化 Yi API 出错: %s\n", err)
+		}
+	case "gemini":
+		err := gemini.Init()
+		if err != nil {
+			log.Fatalf("初始化 Gemini API 出错: %s\n", err)
 		}
 	}
 	AoaRouter.RegisterModelRoute(router, flags.Type)

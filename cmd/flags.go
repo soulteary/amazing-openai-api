@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"strings"
+
 	"github.com/soulteary/amazing-openai-api/internal/fn"
 	AoaModel "github.com/soulteary/amazing-openai-api/internal/model"
 )
@@ -31,10 +33,11 @@ func parseEnvVars() AoaModel.Flags {
 	}
 
 	// check and set type
-	flags.Type = fn.GetStringOrDefaultFromEnv(_ENV_KEY_SERVICE_TYPE, _DEFAULT_TYPE)
+	flags.Type = strings.ToLower(fn.GetStringOrDefaultFromEnv(_ENV_KEY_SERVICE_TYPE, _DEFAULT_TYPE))
 	// TODO support all types
 	if flags.Type != "azure" &&
-		flags.Type != "yi" {
+		flags.Type != "yi" &&
+		flags.Type != "gemini" {
 		flags.Type = _DEFAULT_TYPE
 	}
 	return flags
