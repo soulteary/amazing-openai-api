@@ -15,6 +15,7 @@ import (
 	AoaRouter "github.com/soulteary/amazing-openai-api/internal/router"
 	"github.com/soulteary/amazing-openai-api/internal/version"
 	"github.com/soulteary/amazing-openai-api/models/azure"
+	"github.com/soulteary/amazing-openai-api/models/yi"
 	"github.com/soulteary/amazing-openai-api/pkg/logger"
 )
 
@@ -62,6 +63,11 @@ func startDaemon(flags *AoaModel.Flags) {
 		err := azure.Init()
 		if err != nil {
 			log.Fatalf("初始化 Azure OpenAI API 出错: %s\n", err)
+		}
+	case "yi":
+		err := yi.Init()
+		if err != nil {
+			log.Fatalf("初始化 Yi API 出错: %s\n", err)
 		}
 	}
 	AoaRouter.RegisterModelRoute(router, flags.Type)

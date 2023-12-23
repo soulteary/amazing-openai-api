@@ -33,7 +33,8 @@ func parseEnvVars() AoaModel.Flags {
 	// check and set type
 	flags.Type = fn.GetStringOrDefaultFromEnv(_ENV_KEY_SERVICE_TYPE, _DEFAULT_TYPE)
 	// TODO support all types
-	if flags.Type != "azure" {
+	if flags.Type != "azure" &&
+		flags.Type != "yi" {
 		flags.Type = _DEFAULT_TYPE
 	}
 	return flags
