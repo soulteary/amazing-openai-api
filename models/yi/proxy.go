@@ -66,14 +66,14 @@ func Proxy(c *gin.Context, requestConverter RequestConverter) {
 				return
 			}
 
-			var requestData define.RequestData
-			err = json.Unmarshal(body, &requestData)
+			var payload define.OpenAI_Payload
+			err = json.Unmarshal(body, &payload)
 			if err != nil {
 				network.SendError(c, errors.Wrap(err, "parse payload error"))
 				return
 			}
 
-			model = requestData.Model
+			model = payload.Model
 			// TODO change alias to model
 			req.Body = io.NopCloser(bytes.NewBuffer(body))
 		}
