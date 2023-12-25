@@ -13,3 +13,19 @@ type ModelConfig struct {
 }
 
 type ModelAlias [][]string
+
+// openai api payload
+type RequestData struct {
+	MaxTokens       int       `json:"max_tokens"`
+	Model           string    `json:"model"`
+	Temperature     float64   `json:"temperature"`
+	TopP            float64   `json:"top_p"`
+	PresencePenalty float64   `json:"presence_penalty"`
+	Messages        []Message `json:"messages"`
+	Stream          bool      `json:"stream"`
+}
+
+type Message struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
