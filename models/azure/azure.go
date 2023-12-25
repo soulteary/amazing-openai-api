@@ -62,9 +62,7 @@ func Init() (err error) {
 	// azure openai api model alias
 	alias := fn.ExtractModelAlias(fn.GetStringOrDefaultFromEnv(ENV_AZURE_MODEL_ALIAS, ""))
 	for _, pair := range alias {
-		if model == pair[0] {
-			modelConfig.Model = pair[1]
-		}
+		modelConfig.Alias = pair[1]
 		ModelConfig[pair[0]] = modelConfig
 	}
 	return nil

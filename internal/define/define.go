@@ -9,6 +9,7 @@ type ModelConfig struct {
 	Version  string `yaml:"version" json:"version"`
 	Key      string `yaml:"key" json:"key"`
 	URL      *url.URL
+	Alias    string
 }
 
 type ModelAlias [][]string
