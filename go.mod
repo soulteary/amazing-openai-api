@@ -3,7 +3,6 @@ module github.com/soulteary/amazing-openai-api
 go 1.21
 
 require (
-	github.com/bytedance/sonic v1.10.2
 	github.com/gin-gonic/gin v1.9.1
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
@@ -12,6 +11,7 @@ require (
 )
 
 require (
+	github.com/bytedance/sonic v1.10.0-rc // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect
 	github.com/chenzhuoyu/iasm v0.9.1 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect

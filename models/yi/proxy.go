@@ -2,6 +2,7 @@ package yi
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -10,7 +11,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/bytedance/sonic"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"github.com/soulteary/amazing-openai-api/internal/define"
@@ -54,23 +54,28 @@ func Proxy(c *gin.Context, requestConverter RequestConverter) {
 			network.SendError(c, errors.New("request body is empty"))
 			return
 		}
-		body, _ := io.ReadAll(req.Body)
-		req.Body = io.NopCloser(bytes.NewBuffer(body))
 
-		// get model from url params or body
+		// extract model from request url
 		model := c.Param("model")
 		if model == "" {
-			_model, err := sonic.Get(body, "model")
+			// extract model from request body
+			body, err := io.ReadAll(req.Body)
+			defer req.Body.Close()
 			if err != nil {
-				network.SendError(c, errors.Wrap(err, "get model error"))
+				network.SendError(c, errors.Wrap(err, "read request body error"))
 				return
 			}
-			_modelStr, err := _model.String()
+
+			var requestData define.RequestData
+			err = json.Unmarshal(body, &requestData)
 			if err != nil {
-				network.SendError(c, errors.Wrap(err, "get model name error"))
+				network.SendError(c, errors.Wrap(err, "parse payload error"))
 				return
 			}
-			model = _modelStr
+
+			model = requestData.Model
+			// TODO change alias to model
+			req.Body = io.NopCloser(bytes.NewBuffer(body))
 		}
 
 		// get deployment from request
