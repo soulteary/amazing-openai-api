@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -38,34 +39,36 @@ func ProxyWithConverter(requestConverter RequestConverter) gin.HandlerFunc {
 
 var maskURL = regexp.MustCompile(`key=.+`)
 
-// Proxy Gemini
-func Proxy(c *gin.Context, requestConverter RequestConverter) {
-	var body []byte
-	director := func(req *http.Request) {
-		if req.Body == nil {
-			network.SendError(c, errors.New("request body is empty"))
-			return
-		}
-		body, _ = io.ReadAll(req.Body)
-		req.Body = io.NopCloser(bytes.NewBuffer(body))
+func parseRequestBody(reqBody io.ReadCloser) (openaiPayload define.OpenAI_Payload, err error) {
+	if reqBody == nil {
+		err = errors.New("request body is empty")
+		return openaiPayload, err
+	}
+	body, _ := io.ReadAll(reqBody)
 
-		var openaiPayload define.OpenAI_Payload
-		err := json.Unmarshal(body, &openaiPayload)
-		if err != nil {
-			network.SendError(c, errors.Wrap(err, "parse payload error"))
-			return
-		}
+	// req.Body = io.NopCloser(bytes.NewBuffer(body))
 
-		model := strings.TrimSpace(openaiPayload.Model)
-		if model == "" {
-			model = DEFAULT_GEMINI_MODEL
-		}
+	err = json.Unmarshal(body, &openaiPayload)
+	return openaiPayload, err
+}
 
-		config, ok := ModelConfig[model]
-		if ok {
-			fmt.Println("rewrite model ", model, "to", config.Model)
-			openaiPayload.Model = config.Model
-		}
+func GetModelNameAndConfig(openaiPayload define.OpenAI_Payload) (string, define.ModelConfig, bool) {
+	model := strings.TrimSpace(openaiPayload.Model)
+	if model == "" {
+		model = DEFAULT_GEMINI_MODEL
+	}
+
+	config, ok := ModelConfig[model]
+	if ok {
+		fmt.Println("rewrite model ", model, "to", config.Model)
+		openaiPayload.Model = config.Model
+	}
+	return model, config, ok
+}
+
+func getDirector(req *http.Request, body []byte, c *gin.Context, requestConverter RequestConverter, openaiPayload define.OpenAI_Payload, model string) func(req *http.Request) {
+	return func(req *http.Request) {
+		// req.Body = io.NopCloser(bytes.NewBuffer(body))
 
 		var payload GoogleGeminiPayload
 		for _, data := range openaiPayload.Messages {
@@ -129,8 +132,27 @@ func Proxy(c *gin.Context, requestConverter RequestConverter) {
 
 		log.Printf("proxying request [%s] %s -> %s", model, originURL, maskURL.ReplaceAllString(req.URL.String(), "key=******"))
 	}
+}
 
-	proxy := &httputil.ReverseProxy{Director: director}
+// Proxy Gemini
+func Proxy(c *gin.Context, requestConverter RequestConverter) {
+	var body []byte
+
+	openaiPayload, err := parseRequestBody(c.Request.Body)
+	if err != nil {
+		network.SendError(c, err)
+		return
+	}
+
+	model, config, ok := GetModelNameAndConfig(openaiPayload)
+	if ok {
+		fmt.Println("rewrite model ", model, "to", config.Model)
+		openaiPayload.Model = config.Model
+	}
+
+	fmt.Println(openaiPayload)
+
+	proxy := &httputil.ReverseProxy{Director: getDirector(c.Request, body, c, requestConverter, openaiPayload, model)}
 	transport, err := network.NewProxyFromEnv(
 		fn.GetStringOrDefaultFromEnv("ENV_GEMINI_SOCKS_PROXY", ""),
 		fn.GetStringOrDefaultFromEnv("ENV_GEMINI_HTTP_PROXY", ""),
@@ -141,6 +163,57 @@ func Proxy(c *gin.Context, requestConverter RequestConverter) {
 	}
 	if transport != nil {
 		proxy.Transport = transport
+	}
+
+	proxy.ModifyResponse = func(response *http.Response) error {
+		if response.StatusCode == http.StatusOK {
+			body, err := io.ReadAll(response.Body)
+			if err != nil {
+				return err
+			}
+			defer response.Body.Close()
+
+			var responsePayload GoogleGeminiPayload
+			err = json.Unmarshal(body, &responsePayload)
+			if err != nil {
+				return err
+			}
+
+			var openaiResponse define.OpeAI_Response
+			openaiResponse.ID = "gemini"
+			openaiResponse.Object = "chat.completion"
+			// openaiResponse.Object = "chat.completion.chunk"
+			openaiResponse.Created = 2467348
+			openaiResponse.Model = model
+
+			var openaiMessage define.Message
+			var openaiChoice define.OpenAI_Choices
+			for _, data := range responsePayload.Contents {
+				for _, part := range data.Parts {
+					openaiMessage.Role = data.Role
+					openaiMessage.Content = part.Text
+				}
+			}
+
+			openaiResponse.Usage.CompletionTokens = 11
+			openaiResponse.Usage.PromptTokens = 12
+			openaiResponse.Usage.TotalTokens = 23
+
+			openaiChoice.FinishReason = "stop"
+			openaiChoice.Message = openaiMessage
+			openaiChoice.Index = 0
+			openaiResponse.Choices = append(openaiResponse.Choices, openaiChoice)
+
+			repack, err := json.Marshal(openaiResponse)
+			if err != nil {
+				return err
+			}
+
+			response.Body = io.NopCloser(bytes.NewBuffer(repack))
+			response.ContentLength = int64(len(repack))
+			response.Header.Set("Content-Length", strconv.Itoa(len(repack)))
+		}
+		return nil
 	}
 
 	proxy.ServeHTTP(c.Writer, c.Request)
