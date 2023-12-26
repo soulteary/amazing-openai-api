@@ -152,6 +152,11 @@ func Proxy(c *gin.Context, requestConverter RequestConverter) {
 			}
 
 			model = payload.Model
+			model := strings.TrimSpace(payload.Model)
+			if model == "" {
+				model = DEFAULT_AZURE_MODEL
+			}
+
 			config, ok := ModelConfig[model]
 			if ok {
 				fmt.Println("rewrite model ", model, "to", config.Model)
