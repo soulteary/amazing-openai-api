@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+  amazing-openai-api:
+    image: soulteary/amazing-openai-api:v0.5.0
+    restart: always
+    ports:
+      - 8080:8080
+    environment:
+      # 设置工作模型为 YI
+      - AOA_TYPE=yi
+      # 设置 YI API 服务器地址
+      - YI_ENDPOINT=<修改为你申请或搭建的服务地址>
+      # 设置 YI API Key
+      - YI_API_KEY=<修改为你的API KEY>
+      # 模型名称映射，比如将请求中的 GPT 3.5 Turbo，GPT-4 都映射为 yi-34b-chat
+      - YI_MODEL_ALIAS=gpt-3.5-turbo:yi-34b-chat,gpt-4:yi-34b-chat
+    logging:
+      options:
+        max-size: 1m
