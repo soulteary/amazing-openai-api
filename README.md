@@ -2,7 +2,7 @@
 
 Convert different model APIs into the OpenAI API format out of the box.
 
-能够将各种不同的模型 API 转换为开箱即用的 OpenAI API 格式。
+10MB+的小工具，能够将各种不同的模型 API 转换为开箱即用的 OpenAI API 格式。
 
 当前支持模型：
 
@@ -10,18 +10,57 @@ Convert different model APIs into the OpenAI API format out of the box.
 - YI 34B API
 - Google Gemini Pro
 
-## 配置
 
-应用配置：
+## 下载 📦
+
+访问 [GitHub Release 页面](https://github.com/soulteary/amazing-openai-api/releases)，下载适合你的操作系统的执行文件。
+
+![](.github/assets/dockerhub.png)
+
+或者使用 Docker Pull，下载指定版本的镜像文件：
+
+```bash
+docker pull soulteary/amazing-openai-api:v0.5.0
+```
+
+## 快速上手
+
+`AOA` 不需要编写任何配置文件，通过指定环境变量就能够完成应用行为的调整，包括“选择工作模型”、“设置模型运行需要的参数”、“设置模型兼容别名”。
+
+默认执行 `./aoa` ，程序会将工作模型设置为 `azure`，此时我们设置环境变量 `AZURE_ENDPOINT=https://你的部署名称.openai.azure.com/` 然后就可以正常使用服务啦。
+
+```bash
+AZURE_ENDPOINT=https://你的部署名称.openai.azure.com/ ./aoa
+```
+
+如果你更喜欢 Docker，可以用下面的命令：
+
+```bash
+docker run --rm -it -e AZURE_ENDPOINT=https://suyang231210.openai.azure.com/ -p 8080:8080 soulteary/amazing-openai-api:v0.5.0
+```
+
+当服务启动之后，我们就可以通过访问 `http://localhost:8080/v1` 来访问和 OpenAI 一样的 API 服务啦。
+
+你如果你希望不要将 API Key 暴露给应用，或者不放心各种复杂的开源软件是否有 API Key 泄漏风险，我们可以多配置一个 `AZURE_API_KEY=你的 API Key` 环境变量，然后各种开源软件在请求的时候就无需再填写 API key 了（或者随便填写也行）。
+
+当然，因为 Azure 的一些限制，以及一些开源软件中的模型调用名称不好调整，我们可以通过下面的方式，来将原始请求中的模型，映射为我们真实的模型名称。比如，将 GPT 3.5/4 都替换为 `yi-34b-chat`：
+
+```bash
+gpt-3.5-turbo:yi-34b-chat,gpt-4:yi-34b-chat
+```
+
+如果你希望使用 `yi-34b-chat`，或者 `gemini-pro`，我们需要设置 `AOA_TYPE=yi` 或者 `AOA_TYPE=gemini`，除此之外，没有任何差别。
+
+## 详细配置使用
+
+调整工作模型 `AOA_TYPE`，可选参数，默认为 `azure`：
 
 ```bash
 # 选择一个服务, "azure", "yi", "gemini"
 AOA_TYPE: "azure"
-# 不同的服务，进行不同的细节配置
-# ...
 ```
 
-可选配置：
+程序服务地址，可选参数，默认为 `8080` 和 `0.0.0.0`：
 
 ```bash
 # 服务端口，默认 `8080`
