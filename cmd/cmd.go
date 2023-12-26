@@ -51,6 +51,8 @@ func startDaemon(flags *AoaModel.Flags) {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
+	gin.SetMode(gin.ReleaseMode)
+
 	router := gin.Default()
 	log := logger.GetLogger()
 
