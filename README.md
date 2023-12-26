@@ -8,7 +8,7 @@ Convert different model APIs into the OpenAI API format out of the box.
 
 - Azure OpenAI API
 - YI 34B API
-- Google Gemini Pro (WIP)
+- Google Gemini Pro
 
 ## 配置
 
@@ -78,7 +78,7 @@ AZURE_SOCKS_PROXY
 如果我们想将 YI 官方的 API 转换为标准的 OpenAI 调用，可以用下面的命令：
 
 ```bash
-YI_API_KEY=<你的 API KEY> ./amazing-openai-api 
+AOA_TYPE=yi YI_API_KEY=<你的 API KEY> ./amazing-openai-api 
 ```
 
 和使用 Azure 服务类似，我们可以使用一个技巧将各种开源、闭源软件使用的模型自动映射为我们希望的模型：
@@ -88,9 +88,9 @@ YI_API_KEY=<你的 API KEY> ./amazing-openai-api
 YI_MODEL_ALIAS=gpt-3.5-turbo:yi-34b-chat,gpt-4:yi-34b-chat
 ```
 
-如果我们在启动服务的时候配置了 `AZURE_API_KEY` 的话，不论是开源软件也好，使用 `curl` 调用也罢，我们都不需要添加 `Authorization: Bearer <你的 API Key>` （也可以随便写），这样就起到了严格的 API Key 隔离，提升了 API Key 的安全性。
+如果我们在启动服务的时候配置了 `YI_API_KEY` 的话，不论是开源软件也好，使用 `curl` 调用也罢，我们都不需要添加 `Authorization: Bearer <你的 API Key>` （也可以随便写），这样就起到了严格的 API Key 隔离，提升了 API Key 的安全性。
 
-如果你还是习惯在请求头参数中添加认证内容，可以使用下面的不包含 `AZURE_API_KEY` 的命令，程序将透传验证到 Azure 服务：
+如果你还是习惯在请求头参数中添加认证内容，可以使用下面的不包含 `YI_API_KEY` 的命令，程序将透传验证到 Yi API 服务：
 
 ```bash
 ./amazing-openai-api 
@@ -114,3 +114,25 @@ YI_HTTP_PROXY
 YI_SOCKS_PROXY
 ```
 
+## Gemini PRO
+
+如果我们想将 Google 官方的 Gemini API 转换为标准的 OpenAI 调用，可以用下面的命令：
+
+```bash
+AOA_TYPE=gemini GEMINI_API_KEY=<你的 API KEY> ./amazing-openai-api 
+```
+
+和使用 Azure 服务类似，我们可以使用一个技巧将各种开源、闭源软件使用的模型自动映射为我们希望的模型：
+
+```bash
+# 比如不论是 3.5 还是 4 都映射为 `gpt-35`
+GEMINI_MODEL_ALIAS=gpt-3.5-turbo:gemini-pro,gpt-4:gemini-pro
+```
+
+如果我们在启动服务的时候配置了 `GEMINI_API_KEY` 的话，不论是开源软件也好，使用 `curl` 调用也罢，我们都不需要添加 `Authorization: Bearer <你的 API Key>` （也可以随便写），这样就起到了严格的 API Key 隔离，提升了 API Key 的安全性。
+
+如果你还是习惯在请求头参数中添加认证内容，可以使用下面的不包含 `GEMINI_API_KEY` 的命令，程序将透传验证到 Google AI 服务：
+
+```bash
+./amazing-openai-api 
+```
