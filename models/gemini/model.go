@@ -11,7 +11,7 @@ import (
 
 type RequestConverter interface {
 	Name() string
-	Convert(req *http.Request, config *define.ModelConfig, payload []byte) (*http.Request, error)
+	Convert(req *http.Request, config *define.ModelConfig, payload []byte, openaiPayload define.OpenAI_Payload) (*http.Request, error)
 }
 
 type StripPrefixConverter struct {
@@ -22,11 +22,17 @@ func (c *StripPrefixConverter) Name() string {
 	return "StripPrefix"
 }
 
-func (c *StripPrefixConverter) Convert(req *http.Request, config *define.ModelConfig, payload []byte) (*http.Request, error) {
+func (c *StripPrefixConverter) Convert(req *http.Request, config *define.ModelConfig, payload []byte, openaiPayload define.OpenAI_Payload) (*http.Request, error) {
 	req.Host = config.URL.Host
 	req.URL.Scheme = config.URL.Scheme
 	req.URL.Host = config.URL.Host
+
+	// if openaiPayload.Stream {
+	// req.URL.Path = fmt.Sprintf("%s/models/%s:streamGenerateContent", config.Version, config.Model)
+	// } else {
 	req.URL.Path = fmt.Sprintf("%s/models/%s:generateContent", config.Version, config.Model)
+	// }
+
 	req.URL.RawPath = req.URL.EscapedPath()
 
 	query := req.URL.Query()

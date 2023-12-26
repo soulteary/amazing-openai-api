@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
@@ -45,11 +46,23 @@ func parseRequestBody(reqBody io.ReadCloser) (openaiPayload define.OpenAI_Payloa
 		return openaiPayload, err
 	}
 	body, _ := io.ReadAll(reqBody)
-
-	// req.Body = io.NopCloser(bytes.NewBuffer(body))
-
 	err = json.Unmarshal(body, &openaiPayload)
 	return openaiPayload, err
+}
+
+func parseResponseBody(responseBody io.ReadCloser) (GeminiResponse, error) {
+	var payload GeminiResponse
+	body, err := io.ReadAll(responseBody)
+	if err != nil {
+		return payload, err
+	}
+
+	fmt.Println(string(body))
+	err = json.Unmarshal(body, &payload)
+	if err != nil {
+		return payload, err
+	}
+	return payload, nil
 }
 
 func GetModelNameAndConfig(openaiPayload define.OpenAI_Payload) (string, define.ModelConfig, bool) {
@@ -57,12 +70,7 @@ func GetModelNameAndConfig(openaiPayload define.OpenAI_Payload) (string, define.
 	if model == "" {
 		model = DEFAULT_GEMINI_MODEL
 	}
-
 	config, ok := ModelConfig[model]
-	if ok {
-		fmt.Println("rewrite model ", model, "to", config.Model)
-		openaiPayload.Model = config.Model
-	}
 	return model, config, ok
 }
 
@@ -124,7 +132,7 @@ func getDirector(req *http.Request, body []byte, c *gin.Context, requestConverte
 		}
 
 		originURL := req.URL.String()
-		req, err = requestConverter.Convert(req, deployment, repack)
+		req, err = requestConverter.Convert(req, deployment, repack, openaiPayload)
 		if err != nil {
 			network.SendError(c, errors.Wrap(err, "convert request error"))
 			return
@@ -167,42 +175,52 @@ func Proxy(c *gin.Context, requestConverter RequestConverter) {
 
 	proxy.ModifyResponse = func(response *http.Response) error {
 		if response.StatusCode == http.StatusOK {
-			body, err := io.ReadAll(response.Body)
-			if err != nil {
-				return err
-			}
-			defer response.Body.Close()
 
-			var responsePayload GoogleGeminiPayload
-			err = json.Unmarshal(body, &responsePayload)
+			responsePayload, err := parseResponseBody(response.Body)
+			defer response.Body.Close()
 			if err != nil {
 				return err
 			}
 
 			var openaiResponse define.OpeAI_Response
 			openaiResponse.ID = "gemini"
-			openaiResponse.Object = "chat.completion"
+			// if openaiPayload.Stream {
 			// openaiResponse.Object = "chat.completion.chunk"
-			openaiResponse.Created = 2467348
+			// } else {
+			openaiResponse.Object = "chat.completion"
+			// }
+			openaiResponse.Created = int(time.Now().Unix())
 			openaiResponse.Model = model
 
 			var openaiMessage define.Message
 			var openaiChoice define.OpenAI_Choices
-			for _, data := range responsePayload.Contents {
-				for _, part := range data.Parts {
-					openaiMessage.Role = data.Role
-					openaiMessage.Content = part.Text
-				}
+
+			promptTokens := 0
+			for _, data := range openaiPayload.Messages {
+				promptTokens += len(data.Content)
 			}
 
-			openaiResponse.Usage.CompletionTokens = 11
-			openaiResponse.Usage.PromptTokens = 12
-			openaiResponse.Usage.TotalTokens = 23
+			completionTokens := 0
+			fmt.Println(responsePayload)
+			for _, candidates := range responsePayload.Candidates {
+				for _, part := range candidates.Content.Parts {
+					openaiMessage.Role = candidates.Content.Role
+					openaiMessage.Content = part.Text
+					completionTokens += len(part.Text)
+				}
+				if candidates.FinishReason != "" {
+					openaiChoice.FinishReason = candidates.FinishReason
+				}
+				openaiChoice.Index = candidates.Index
+			}
 
-			openaiChoice.FinishReason = "stop"
 			openaiChoice.Message = openaiMessage
-			openaiChoice.Index = 0
 			openaiResponse.Choices = append(openaiResponse.Choices, openaiChoice)
+
+			// stats
+			openaiResponse.Usage.CompletionTokens = completionTokens
+			openaiResponse.Usage.PromptTokens = promptTokens
+			openaiResponse.Usage.TotalTokens = completionTokens + promptTokens
 
 			repack, err := json.Marshal(openaiResponse)
 			if err != nil {

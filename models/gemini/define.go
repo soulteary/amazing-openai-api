@@ -56,11 +56,33 @@ type GeminiGenerationConfig struct {
 	TopK            int      `json:"topK,omitempty"`
 }
 
+// gemini response
+type GeminiSafetyRatings struct {
+	Category    string `json:"category"`
+	Probability string `json:"probability"`
+}
+
+type PromptFeedback struct {
+	SafetyRatings []GeminiSafetyRatings `json:"safetyRatings"`
+}
+
+type GeminiPayloadParts struct {
+	Text string `json:"text"`
+}
+
 type GeminiPayloadContents struct {
 	Parts []GeminiPayloadParts `json:"parts"`
 	Role  string               `json:"role"`
 }
 
-type GeminiPayloadParts struct {
-	Text string `json:"text"`
+type GeminiCandidates struct {
+	Content       GeminiPayloadContents `json:"content"`
+	FinishReason  string                `json:"finishReason"`
+	Index         int                   `json:"index"`
+	SafetyRatings []GeminiSafetyRatings `json:"safetyRatings"`
+}
+
+type GeminiResponse struct {
+	Candidates     []GeminiCandidates `json:"candidates"`
+	PromptFeedback PromptFeedback     `json:"promptFeedback"`
 }
