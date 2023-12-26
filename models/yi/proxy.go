@@ -74,8 +74,20 @@ func Proxy(c *gin.Context, requestConverter RequestConverter) {
 			}
 
 			model = payload.Model
-			// TODO change alias to model
+			config, ok := ModelConfig[model]
+			if ok {
+				fmt.Println("rewrite model ", model, "to", config.Model)
+				payload.Model = config.Model
+				repack, err := json.Marshal(payload)
+				if err != nil {
+					network.SendError(c, errors.Wrap(err, "repack payload error"))
+					return
+				}
+				body = repack
+			}
+
 			req.Body = io.NopCloser(bytes.NewBuffer(body))
+			req.ContentLength = int64(len(body))
 		}
 
 		// get deployment from request
