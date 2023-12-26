@@ -49,16 +49,22 @@ func Proxy(c *gin.Context, requestConverter RequestConverter) {
 		body, _ = io.ReadAll(req.Body)
 		req.Body = io.NopCloser(bytes.NewBuffer(body))
 
-		var openaiPayload OpenAIPayload
-		if err := json.Unmarshal(body, &openaiPayload); err != nil {
+		var openaiPayload define.OpenAI_Payload
+		err := json.Unmarshal(body, &openaiPayload)
+		if err != nil {
 			network.SendError(c, errors.Wrap(err, "parse payload error"))
 			return
 		}
 
-		// get model from origin request body
 		model := strings.TrimSpace(openaiPayload.Model)
 		if model == "" {
 			model = DEFAULT_GEMINI_MODEL
+		}
+
+		config, ok := ModelConfig[model]
+		if ok {
+			fmt.Println("rewrite model ", model, "to", config.Model)
+			openaiPayload.Model = config.Model
 		}
 
 		var payload GoogleGeminiPayload
@@ -96,7 +102,6 @@ func Proxy(c *gin.Context, requestConverter RequestConverter) {
 			network.SendError(c, err)
 			return
 		}
-
 		// get auth token from header or deployemnt config
 		token := deployment.Key
 		if token == "" {
@@ -109,14 +114,14 @@ func Proxy(c *gin.Context, requestConverter RequestConverter) {
 		}
 		req.Header.Set("Authorization", token)
 
-		payloadJSON, err := json.Marshal(payload)
+		repack, err := json.Marshal(payload)
 		if err != nil {
-			network.SendError(c, errors.Wrap(err, "Error converting to JSON"))
+			network.SendError(c, errors.Wrap(err, "repack payload error"))
 			return
 		}
 
 		originURL := req.URL.String()
-		req, err = requestConverter.Convert(req, deployment, payloadJSON)
+		req, err = requestConverter.Convert(req, deployment, repack)
 		if err != nil {
 			network.SendError(c, errors.Wrap(err, "convert request error"))
 			return
