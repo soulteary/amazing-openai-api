@@ -51,6 +51,16 @@ gpt-3.5-turbo:yi-34b-chat,gpt-4:yi-34b-chat
 
 如果你希望使用 `yi-34b-chat`，或者 `gemini-pro`，我们需要设置 `AOA_TYPE=yi` 或者 `AOA_TYPE=gemini`，除此之外，没有任何差别。
 
+## 容器快速上手
+
+项目中包含当前支持的三种模型接口的 `docker compose` 示例文件，我们将 `example` 目录中的不同的文件，按需选择使用，将必填的信息填写完毕后，将文件修改为 `docker-compose.yml`。
+
+然后使用 `docker compose up` 启动服务，就能够快速使用啦。
+
+- [docker-compose.azure.yml](./example/docker-compose.azure.yml)
+- [docker-compose.yi.yml](./example/docker-compose.yi.yml)
+- [docker-compose.gemini.yml](./example/docker-compose.gemini.yml)
+
 ## 详细配置使用
 
 调整工作模型 `AOA_TYPE`，可选参数，默认为 `azure`：
