@@ -1,5 +1,7 @@
 # Amazing OpenAI API
 
+![](.github/assets/aoa.jpg)
+
 Convert different model APIs into the OpenAI API format out of the box.
 
 10MB+的小工具，能够将各种不同的模型 API 转换为开箱即用的 OpenAI API 格式。
