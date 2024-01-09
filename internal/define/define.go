@@ -16,13 +16,13 @@ type ModelAlias [][]string
 
 // openai api payload
 type OpenAI_Payload struct {
-	MaxTokens       int       `json:"max_tokens"`
+	MaxTokens       int       `json:"max_tokens,omitempty"`
 	Model           string    `json:"model"`
-	Temperature     float64   `json:"temperature"`
-	TopP            float64   `json:"top_p"`
-	PresencePenalty float64   `json:"presence_penalty"`
+	Temperature     float64   `json:"temperature,omitempty"`
+	TopP            float64   `json:"top_p,omitempty"`
+	PresencePenalty float64   `json:"presence_penalty,omitempty"`
 	Messages        []Message `json:"messages"`
-	Stream          bool      `json:"stream"`
+	Stream          bool      `json:"stream,omitempty"`
 }
 
 type Message struct {
