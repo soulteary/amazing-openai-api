@@ -26,7 +26,12 @@ func (c *StripPrefixConverter) Convert(req *http.Request, config *define.ModelCo
 	req.Host = config.URL.Host
 	req.URL.Scheme = config.URL.Scheme
 	req.URL.Host = config.URL.Host
-	req.URL.Path = path.Join(fmt.Sprintf("/openai/deployments/%s", config.Model), strings.Replace(req.URL.Path, c.Prefix+"/", "/", 1))
+
+	deployName := config.Model
+	if config.Alias != "" {
+		deployName = config.Alias
+	}
+	req.URL.Path = path.Join(fmt.Sprintf("/openai/deployments/%s", deployName), strings.Replace(req.URL.Path, c.Prefix+"/", "/", 1))
 	req.URL.RawPath = req.URL.EscapedPath()
 
 	query := req.URL.Query()
