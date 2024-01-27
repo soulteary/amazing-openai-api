@@ -57,7 +57,6 @@ func parseResponseBody(responseBody io.ReadCloser) (GeminiResponse, error) {
 		return payload, err
 	}
 
-	fmt.Println(string(body))
 	err = json.Unmarshal(body, &payload)
 	if err != nil {
 		return payload, err
@@ -162,8 +161,6 @@ func Proxy(c *gin.Context, requestConverter RequestConverter) {
 		openaiPayload.Model = config.Model
 	}
 
-	fmt.Println(openaiPayload)
-
 	proxy := &httputil.ReverseProxy{Director: getDirector(c.Request, body, c, requestConverter, openaiPayload, model)}
 	transport, err := network.NewProxyFromEnv(
 		fn.GetStringOrDefaultFromEnv("ENV_GEMINI_SOCKS_PROXY", ""),
@@ -180,8 +177,18 @@ func Proxy(c *gin.Context, requestConverter RequestConverter) {
 	proxy.ModifyResponse = func(response *http.Response) error {
 		if response.StatusCode == http.StatusOK {
 
-			responsePayload, err := parseResponseBody(response.Body)
-			defer response.Body.Close()
+			var reader io.ReadCloser
+			if strings.ToLower(response.Header.Get("Content-Encoding")) == "gzip" {
+				reader, err = fn.Gunzip(response.Body)
+				if err != nil {
+					return err
+				}
+			} else {
+				reader = response.Body
+			}
+
+			responsePayload, err := parseResponseBody(reader)
+			defer reader.Close()
 			if err != nil {
 				return err
 			}
@@ -205,7 +212,6 @@ func Proxy(c *gin.Context, requestConverter RequestConverter) {
 			}
 
 			completionTokens := 0
-			fmt.Println(responsePayload)
 			for _, candidates := range responsePayload.Candidates {
 				for _, part := range candidates.Content.Parts {
 					openaiMessage.Role = candidates.Content.Role
