@@ -126,7 +126,7 @@ func getDirector(req *http.Request, body []byte, c *gin.Context, requestConverte
 			network.SendError(c, errors.New("token is empty"))
 			return
 		}
-		req.Header.Set("Authorization", token)
+		req.Header.Del("Authorization")
 
 		repack, err := json.Marshal(payload)
 		if err != nil {
@@ -135,7 +135,7 @@ func getDirector(req *http.Request, body []byte, c *gin.Context, requestConverte
 		}
 
 		originURL := req.URL.String()
-		req, err = requestConverter.Convert(req, deployment, repack, openaiPayload)
+		req, err = requestConverter.Convert(req, deployment, repack, openaiPayload, token)
 		if err != nil {
 			network.SendError(c, errors.Wrap(err, "convert request error"))
 			return

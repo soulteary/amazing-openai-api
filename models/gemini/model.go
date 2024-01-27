@@ -11,7 +11,7 @@ import (
 
 type RequestConverter interface {
 	Name() string
-	Convert(req *http.Request, config *define.ModelConfig, payload []byte, openaiPayload define.OpenAI_Payload) (*http.Request, error)
+	Convert(req *http.Request, config *define.ModelConfig, payload []byte, openaiPayload define.OpenAI_Payload, apikey string) (*http.Request, error)
 }
 
 type StripPrefixConverter struct {
@@ -22,7 +22,7 @@ func (c *StripPrefixConverter) Name() string {
 	return "StripPrefix"
 }
 
-func (c *StripPrefixConverter) Convert(req *http.Request, config *define.ModelConfig, payload []byte, openaiPayload define.OpenAI_Payload) (*http.Request, error) {
+func (c *StripPrefixConverter) Convert(req *http.Request, config *define.ModelConfig, payload []byte, openaiPayload define.OpenAI_Payload, apikey string) (*http.Request, error) {
 	req.Host = config.URL.Host
 	req.URL.Scheme = config.URL.Scheme
 	req.URL.Host = config.URL.Host
@@ -36,7 +36,15 @@ func (c *StripPrefixConverter) Convert(req *http.Request, config *define.ModelCo
 	req.URL.RawPath = req.URL.EscapedPath()
 
 	query := req.URL.Query()
-	query.Add("key", config.Key)
+	if config.Key == "" {
+		if apikey == "" {
+			return nil, fmt.Errorf("missing api key")
+		} else {
+			query.Add("key", apikey)
+		}
+	} else {
+		query.Add("key", config.Key)
+	}
 	req.URL.RawQuery = query.Encode()
 	req.Body = io.NopCloser(bytes.NewBuffer(payload))
 	req.ContentLength = int64(len(payload))
