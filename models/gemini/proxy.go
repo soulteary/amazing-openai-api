@@ -94,9 +94,13 @@ func getDirector(req *http.Request, body []byte, c *gin.Context, requestConverte
 
 		// set default safety settings
 		var safetySettings []GeminiSafetySettings
+		safetyThreshold := fn.GetStringOrDefaultFromEnv(ENV_GEMINI_SAFETY, DEFAULT_SAFETY_THRESHOLD_UNSET)
+		if safetyThreshold != DEFAULT_SAFETY_THRESHOLD_NONE && safetyThreshold != DEFAULT_SAFETY_THRESHOLD_UNSET && safetyThreshold != DEFAULT_SAFETY_THRESHOLD_LESS && safetyThreshold != DEFAULT_SAFETY_THRESHOLD_MEDIUM && safetyThreshold != DEFAULT_SAFETY_THRESHOLD_HIGH {
+			safetyThreshold = DEFAULT_SAFETY_THRESHOLD_UNSET
+		}
 		safetySettings = append(safetySettings, GeminiSafetySettings{
 			Category:  "HARM_CATEGORY_DANGEROUS_CONTENT",
-			Threshold: "BLOCK_ONLY_HIGH",
+			Threshold: safetyThreshold,
 		})
 		payload.SafetySettings = safetySettings
 
