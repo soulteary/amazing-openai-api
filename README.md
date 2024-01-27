@@ -185,5 +185,26 @@ GEMINI_MODEL_ALIAS=gpt-3.5-turbo:gemini-pro,gpt-4:gemini-pro
 如果你还是习惯在请求头参数中添加认证内容，可以使用下面的不包含 `GEMINI_API_KEY` 的命令，程序将透传验证到 Google AI 服务：
 
 ```bash
-./amazing-openai-api 
+./amazing-openai-api
+```
+
+### 模型参数设置
+
+```bash
+# (必选) Gemini API Key
+GEMINI_API_KEY
+
+# (可选) Gemini 安全设置，可选 `BLOCK_NONE` / `BLOCK_ONLY_HIGH` / `BLOCK_MEDIUM_AND_ABOVE` / `BLOCK_LOW_AND_ABOVE` / `HARM_BLOCK_THRESHOLD_UNSPECIFIED`
+GEMINI_SAFETY
+# (可选) Gemini 模型 版本，默认 `gemini-pro`
+GEMINI_MODEL
+# (可选) Gemini API 版本，默认 `v1beta`
+GEMINI_API_VER
+# (可选) Gemini API 接口地址
+GEMINI_ENDPOINT
+# (可选) 模型映射别名
+GEMINI_MODEL_ALIAS
+# (可选) Gemini 网络代理
+GEMINI_HTTP_PROXY
+GEMINI_SOCKS_PROXY
 ```
