@@ -22,7 +22,7 @@ Convert different model APIs into the OpenAI API format out of the box.
 或者使用 Docker Pull，下载指定版本的镜像文件：
 
 ```bash
-docker pull soulteary/amazing-openai-api:v0.6.1
+docker pull soulteary/amazing-openai-api:v0.6.2
 ```
 
 ## 快速上手
@@ -38,7 +38,7 @@ AZURE_ENDPOINT=https://你的部署名称.openai.azure.com/ ./aoa
 如果你更喜欢 Docker，可以用下面的命令：
 
 ```bash
-docker run --rm -it -e AZURE_ENDPOINT=https://suyang231210.openai.azure.com/ -p 8080:8080 soulteary/amazing-openai-api:v0.6.1
+docker run --rm -it -e AZURE_ENDPOINT=https://suyang231210.openai.azure.com/ -p 8080:8080 soulteary/amazing-openai-api:v0.6.2
 ```
 
 当服务启动之后，我们就可以通过访问 `http://localhost:8080/v1` 来访问和 OpenAI 一样的 API 服务啦。

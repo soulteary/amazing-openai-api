@@ -2,7 +2,7 @@ version: "3"
 
 services:
   amazing-openai-api:
-    image: soulteary/amazing-openai-api:v0.6.1
+    image: soulteary/amazing-openai-api:v0.6.2
     restart: always
     ports:
       - 8080:8080
