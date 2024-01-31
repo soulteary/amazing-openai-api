@@ -49,7 +49,7 @@ func ModelProxy(c *gin.Context) {
 	for _, deployment := range ModelConfig {
 		go func(deployment define.ModelConfig) {
 			// Create the request
-			req, err := http.NewRequest(http.MethodGet, deployment.Endpoint+"/openai/deployments?api-version=2022-12-01", nil)
+			req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/openai/deployments?api-version=%s", deployment.Endpoint, deployment.Version), nil)
 			if err != nil {
 				log.Printf("error parsing response body for deployment %s: %v", deployment.Name, err)
 				results <- nil
