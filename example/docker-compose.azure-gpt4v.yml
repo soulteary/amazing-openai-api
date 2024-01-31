@@ -9,9 +9,10 @@ services:
     environment:
       - AZURE_ENDPOINT=https://<修改为你的部署名称>.openai.azure.com/
       - AZURE_API_KEY=<修改为你的API KEY>
-      - AZURE_MODEL=gpt-4
-      # 模型名称映射，比如将请求中的 GPT 3.5 Turbo 映射为 GPT 4
-      - AZURE_MODEL_ALIAS=gpt-3.5-turbo:gpt-4
+      - AZURE_VISION=true
+      - AZURE_MODEL=gpt-4v
+      # 模型名称映射，比如将请求中的 GPT 3.5 Turbo 映射为 GPT 4v
+      - AZURE_MODEL_ALIAS=gpt-3.5-turbo:gpt-4v,gpt-4:gpt4v
     logging:
       options:
         max-size: 1m

@@ -8,8 +8,7 @@ Convert different model APIs into the OpenAI API format out of the box.
 
 当前支持模型：
 
-- Azure OpenAI API (GPT 3.5/4)
-- Azure GPT4 Vision (GPT4v)
+- Azure OpenAI API (GPT 3.5/4), GPT4 Vision (GPT4v)
 - YI 34B API
 - Google Gemini Pro
 
@@ -23,7 +22,7 @@ Convert different model APIs into the OpenAI API format out of the box.
 或者使用 Docker Pull，下载指定版本的镜像文件：
 
 ```bash
-docker pull soulteary/amazing-openai-api:v0.6.3
+docker pull soulteary/amazing-openai-api:v0.7.0
 ```
 
 ## 快速上手
@@ -39,7 +38,7 @@ AZURE_ENDPOINT=https://你的部署名称.openai.azure.com/ ./aoa
 如果你更喜欢 Docker，可以用下面的命令：
 
 ```bash
-docker run --rm -it -e AZURE_ENDPOINT=https://suyang231210.openai.azure.com/ -p 8080:8080 soulteary/amazing-openai-api:v0.6.3
+docker run --rm -it -e AZURE_ENDPOINT=https://你的部署名称.openai.azure.com/ -p 8080:8080 soulteary/amazing-openai-api:v0.7.0
 ```
 
 当服务启动之后，我们就可以通过访问 `http://localhost:8080/v1` 来访问和 OpenAI 一样的 API 服务啦。
@@ -75,10 +74,6 @@ gpt-3.5-turbo:yi-34b-chat,gpt-4:yi-34b-chat
 
 如果你希望使用 `yi-34b-chat`，或者 `gemini-pro`，我们需要设置 `AOA_TYPE=yi` 或者 `AOA_TYPE=gemini`，除此之外，没有任何差别。
 
-### GPT4 Vision
-
-如果你已经拥有了 Azure GPT Vision，除了使用 SDK 调用之外，你也可以参考这篇文档，使用 `curl` 进行调用：[GPT Vision](./example/gpt-vision.md)。
-
 ## 容器快速上手
 
 项目中包含当前支持的三种模型接口的 `docker compose` 示例文件，我们将 `example` 目录中的不同的文件，按需选择使用，将必填的信息填写完毕后，将文件修改为 `docker-compose.yml`。
@@ -86,6 +81,7 @@ gpt-3.5-turbo:yi-34b-chat,gpt-4:yi-34b-chat
 然后使用 `docker compose up` 启动服务，就能够快速使用啦。
 
 - [docker-compose.azure.yml](./example/docker-compose.azure.yml)
+- [docker-compose.azure-gpt4v.yml](./example/docker-compose.azure-gpt4v.yml)
 - [docker-compose.yi.yml](./example/docker-compose.yi.yml)
 - [docker-compose.gemini.yml](./example/docker-compose.gemini.yml)
 
@@ -132,6 +128,10 @@ AZURE_MODEL_ALIAS=gpt-3.5-turbo:gpt-35,gpt-4:gpt-35
 AZURE_ENDPOINT=https://<你的 Endpoint 地址>.openai.azure.com/ AZURE_MODEL_ALIAS=gpt-3.5-turbo:gpt-35 ./amazing-openai-api 
 ```
 
+### GPT4 Vision
+
+如果你已经拥有了 Azure GPT Vision，除了使用 SDK 调用之外，你也可以参考这篇文档，使用 `curl` 进行调用：[GPT Vision](./example/gpt-vision.md)。
+
 ### 模型参数设置
 
 ```bash
@@ -143,6 +143,8 @@ AZURE_API_KEY
 AZURE_MODEL
 # (可选) API Version
 AZURE_API_VER
+# (可选) 是否是 Vision 实例
+ENV_AZURE_VISION
 # (可选) 模型映射别名
 AZURE_MODEL_ALIAS
 # (可选) Azure 网络代理
