@@ -8,7 +8,8 @@ Convert different model APIs into the OpenAI API format out of the box.
 
 当前支持模型：
 
-- Azure OpenAI API
+- Azure OpenAI API (GPT 3.5/4)
+- Azure GPT4 Vision (GPT4v)
 - YI 34B API
 - Google Gemini Pro
 
@@ -43,6 +44,27 @@ docker run --rm -it -e AZURE_ENDPOINT=https://suyang231210.openai.azure.com/ -p 
 
 当服务启动之后，我们就可以通过访问 `http://localhost:8080/v1` 来访问和 OpenAI 一样的 API 服务啦。
 
+你可以使用 `curl` 来进行一个快速测试：
+
+```bash
+curl -v http://127.0.0.1:8080/v1/chat/completions \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer 123" \
+    -d '{
+        "model": "gpt-4",
+        "messages": [
+        {
+            "role": "system",
+            "content": "You are a poetic assistant, skilled in explaining complex programming concepts with creative flair."
+        },
+        {
+            "role": "user",
+            "content": "Compose a poem that explains the concept of recursion in programming."
+        }
+        ]
+    }'
+```
+
 你如果你希望不要将 API Key 暴露给应用，或者不放心各种复杂的开源软件是否有 API Key 泄漏风险，我们可以多配置一个 `AZURE_API_KEY=你的 API Key` 环境变量，然后各种开源软件在请求的时候就无需再填写 API key 了（或者随便填写也行）。
 
 当然，因为 Azure 的一些限制，以及一些开源软件中的模型调用名称不好调整，我们可以通过下面的方式，来将原始请求中的模型，映射为我们真实的模型名称。比如，将 GPT 3.5/4 都替换为 `yi-34b-chat`：
@@ -52,6 +74,34 @@ gpt-3.5-turbo:yi-34b-chat,gpt-4:yi-34b-chat
 ```
 
 如果你希望使用 `yi-34b-chat`，或者 `gemini-pro`，我们需要设置 `AOA_TYPE=yi` 或者 `AOA_TYPE=gemini`，除此之外，没有任何差别。
+
+### GPT4 Vision
+
+
+如果你已经拥有了 Azure GPT4 Vision，并且想要使用 OpenAI API 的接口格式来进行调用，我们可以在使用 `azure` 服务类型时，设置 `AZURE_VISION` 的数值为 `true|1|on|yes` 任意值，激活 Vision API。
+
+```bash
+AZURE_VISION=true
+```
+
+调用方法很简单，除了使用 SDK 之外，同样可以使用 `curl`：
+
+```bash
+curl -v http://127.0.0.1:8080/v1/chat/completions \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer 123" \
+    -d '{
+        "model": "gpt-4v",
+        "messages":[
+          {"role":"system","content":"You are a helpful assistant."},
+          {"role":"user","content":[
+            {"type":"text","text":"Describe this picture:"},
+            { "type": "image_url", "image_url": { "url": "https://learn.microsoft.com/azure/ai-services/computer-vision/media/quickstarts/presentation.png", "detail": "high" }}
+          ]}
+        ]
+    }'
+```
+
 
 ## 容器快速上手
 
