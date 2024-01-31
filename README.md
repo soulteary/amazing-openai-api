@@ -64,6 +64,29 @@ curl -v http://127.0.0.1:8080/v1/chat/completions \
     }'
 ```
 
+也可以使用 OpenAI 官方 SDK 进行调用，或者任意兼容 OpenAI 的开源软件进行使用（更多例子，参考 [example](./example/)）：
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-key-or-input-something-as-you-like",
+    base_url="http://127.0.0.1:8080/v1"
+)
+
+chat_completion = client.chat.completions.create(
+    messages=[
+        {
+            "role": "user",
+            "content": "Say this is a test",
+        }
+    ],
+    model="gpt-3.5-turbo",
+)
+
+print(chat_completion)
+```
+
 你如果你希望不要将 API Key 暴露给应用，或者不放心各种复杂的开源软件是否有 API Key 泄漏风险，我们可以多配置一个 `AZURE_API_KEY=你的 API Key` 环境变量，然后各种开源软件在请求的时候就无需再填写 API key 了（或者随便填写也行）。
 
 当然，因为 Azure 的一些限制，以及一些开源软件中的模型调用名称不好调整，我们可以通过下面的方式，来将原始请求中的模型，映射为我们真实的模型名称。比如，将 GPT 3.5/4 都替换为 `yi-34b-chat`：
