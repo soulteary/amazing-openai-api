@@ -24,6 +24,19 @@ func GetStringOrDefaultFromEnv(key string, defaultValue string) string {
 	return value
 }
 
+func GetBoolOrDefaultFromEnv(key string, defaultValue bool) bool {
+	value := strings.TrimSpace(os.Getenv(key))
+	if value == "" {
+		return defaultValue
+	}
+
+	s := strings.ToLower(value)
+	if s == "true" || s == "on" || s == "yes" || s == "1" {
+		return true
+	}
+	return false
+}
+
 func IsValidIPAddress(ip string) bool {
 	return net.ParseIP(ip) != nil
 }

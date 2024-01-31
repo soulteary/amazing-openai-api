@@ -88,3 +88,95 @@ func TestIsValidIPAddress(t *testing.T) {
 		})
 	}
 }
+
+func TestGetBoolOrDefaultFromEnv(t *testing.T) {
+	const envKey = "TEST_BOOL_ENV_VAR"
+
+	t.Run("ReturnsDefaultValueForUnset", func(t *testing.T) {
+		os.Unsetenv(envKey)
+		if got := fn.GetBoolOrDefaultFromEnv(envKey, false); got != false {
+			t.Errorf("Expected default value %v, got %v", false, got)
+		}
+
+		os.Unsetenv(envKey)
+		if got := fn.GetBoolOrDefaultFromEnv(envKey, true); got != true {
+			t.Errorf("Expected default value %v, got %v", true, got)
+		}
+	})
+
+	t.Run("test on", func(t *testing.T) {
+		expected := "on"
+		os.Setenv(envKey, expected)
+		defer os.Unsetenv(envKey)
+		if got := fn.GetBoolOrDefaultFromEnv(envKey, false); got != true {
+			t.Errorf("Expected non-empty value %v, got %v", expected, got)
+		}
+
+		os.Setenv(envKey, expected)
+		defer os.Unsetenv(envKey)
+		if got := fn.GetBoolOrDefaultFromEnv(envKey, true); got != true {
+			t.Errorf("Expected non-empty value %v, got %v", expected, got)
+		}
+	})
+
+	t.Run("test true", func(t *testing.T) {
+		expected := "true"
+		os.Setenv(envKey, expected)
+		defer os.Unsetenv(envKey)
+		if got := fn.GetBoolOrDefaultFromEnv(envKey, false); got != true {
+			t.Errorf("Expected non-empty value %v, got %v", expected, got)
+		}
+
+		os.Setenv(envKey, expected)
+		defer os.Unsetenv(envKey)
+		if got := fn.GetBoolOrDefaultFromEnv(envKey, true); got != true {
+			t.Errorf("Expected non-empty value %v, got %v", expected, got)
+		}
+	})
+
+	t.Run("test 1", func(t *testing.T) {
+		expected := "1"
+		os.Setenv(envKey, expected)
+		defer os.Unsetenv(envKey)
+		if got := fn.GetBoolOrDefaultFromEnv(envKey, false); got != true {
+			t.Errorf("Expected non-empty value %v, got %v", expected, got)
+		}
+
+		os.Setenv(envKey, expected)
+		defer os.Unsetenv(envKey)
+		if got := fn.GetBoolOrDefaultFromEnv(envKey, true); got != true {
+			t.Errorf("Expected non-empty value %v, got %v", expected, got)
+		}
+	})
+
+	t.Run("test yes", func(t *testing.T) {
+		expected := "yes"
+		os.Setenv(envKey, expected)
+		defer os.Unsetenv(envKey)
+		if got := fn.GetBoolOrDefaultFromEnv(envKey, false); got != true {
+			t.Errorf("Expected non-empty value %v, got %v", expected, got)
+		}
+
+		os.Setenv(envKey, expected)
+		defer os.Unsetenv(envKey)
+		if got := fn.GetBoolOrDefaultFromEnv(envKey, true); got != true {
+			t.Errorf("Expected non-empty value %v, got %v", expected, got)
+		}
+	})
+
+	t.Run("test 0", func(t *testing.T) {
+		expected := "0"
+		os.Setenv(envKey, expected)
+		defer os.Unsetenv(envKey)
+		if got := fn.GetBoolOrDefaultFromEnv(envKey, false); got != false {
+			t.Errorf("Expected non-empty value %v, got %v", expected, got)
+		}
+
+		os.Setenv(envKey, expected)
+		defer os.Unsetenv(envKey)
+		if got := fn.GetBoolOrDefaultFromEnv(envKey, true); got != false {
+			t.Errorf("Expected non-empty value %v, got %v", expected, got)
+		}
+	})
+
+}

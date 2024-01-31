@@ -15,9 +15,10 @@ func parseEnvVars() AoaModel.Flags {
 		ShowVersion: false,
 		ShowHelp:    false,
 
-		Type: _DEFAULT_TYPE,
-		Port: _DEFAULT_PORT,
-		Host: _DEFAULT_HOST,
+		Type:   _DEFAULT_TYPE,
+		Vision: _DEFAULT_VISION,
+		Port:   _DEFAULT_PORT,
+		Host:   _DEFAULT_HOST,
 	}
 
 	// check and set port
@@ -31,6 +32,9 @@ func parseEnvVars() AoaModel.Flags {
 	if !fn.IsValidIPAddress(flags.Host) {
 		flags.Host = _DEFAULT_HOST
 	}
+
+	// check and set vision
+	flags.Vision = fn.GetBoolOrDefaultFromEnv(_ENV_KEY_USE_VISION, _DEFAULT_VISION)
 
 	// check and set type
 	flags.Type = strings.ToLower(fn.GetStringOrDefaultFromEnv(_ENV_KEY_SERVICE_TYPE, _DEFAULT_TYPE))

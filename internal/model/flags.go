@@ -5,7 +5,8 @@ type Flags struct {
 	ShowVersion bool
 	ShowHelp    bool
 
-	Type string
-	Port int
-	Host string
+	Type   string
+	Vision bool
+	Port   int
+	Host   string
 }
