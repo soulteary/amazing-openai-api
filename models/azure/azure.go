@@ -58,6 +58,8 @@ func Init() (err error) {
 	}
 	modelConfig.Model = model
 
+	modelConfig.Vision = fn.GetBoolOrDefaultFromEnv(ENV_AZURE_VISION, false)
+
 	ModelConfig[model] = modelConfig
 
 	// azure openai api model alias

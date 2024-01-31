@@ -144,15 +144,15 @@ func Proxy(c *gin.Context, requestConverter RequestConverter) {
 				return
 			}
 
-			var payload define.OpenAI_Payload
-			err = json.Unmarshal(body, &payload)
+			var modelPayload define.OpenAI_Payload_Model
+			err = json.Unmarshal(body, &modelPayload)
 			if err != nil {
-				network.SendError(c, errors.Wrap(err, "parse payload error"))
+				network.SendError(c, errors.Wrap(err, "parse model payload error"))
 				return
 			}
 
-			model = payload.Model
-			model := strings.TrimSpace(payload.Model)
+			model = modelPayload.Model
+			model := strings.TrimSpace(modelPayload.Model)
 			if model == "" {
 				model = DEFAULT_AZURE_MODEL
 			}
@@ -160,13 +160,38 @@ func Proxy(c *gin.Context, requestConverter RequestConverter) {
 			config, ok := ModelConfig[model]
 			if ok {
 				fmt.Println("rewrite model ", model, "to", config.Model)
-				payload.Model = config.Model
-				repack, err := json.Marshal(payload)
-				if err != nil {
-					network.SendError(c, errors.Wrap(err, "repack payload error"))
-					return
+				if !config.Vision {
+					var payload define.OpenAI_Payload
+					err = json.Unmarshal(body, &payload)
+					if err != nil {
+						network.SendError(c, errors.Wrap(err, "parse payload error"))
+						return
+					}
+
+					payload.Model = config.Model
+
+					repack, err := json.Marshal(payload)
+					if err != nil {
+						network.SendError(c, errors.Wrap(err, "repack payload error"))
+						return
+					}
+					body = repack
+				} else {
+					var visionPayload define.OpenAI_Vision_Payload
+					err = json.Unmarshal(body, &visionPayload)
+					if err != nil {
+						network.SendError(c, errors.Wrap(err, "parse vision payload error"))
+						return
+					}
+					visionPayload.Model = config.Model
+
+					repack, err := json.Marshal(visionPayload)
+					if err != nil {
+						network.SendError(c, errors.Wrap(err, "repack vision payload error"))
+						return
+					}
+					body = repack
 				}
-				body = repack
 			}
 
 			req.Body = io.NopCloser(bytes.NewBuffer(body))

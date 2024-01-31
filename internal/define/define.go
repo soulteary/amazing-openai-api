@@ -10,11 +10,17 @@ type ModelConfig struct {
 	Key      string `yaml:"key" json:"key"`
 	URL      *url.URL
 	Alias    string
+	Vision   bool
 }
 
 type ModelAlias [][]string
 
 // openai api payload
+
+type OpenAI_Payload_Model struct {
+	Model string `json:"model"`
+}
+
 type OpenAI_Payload struct {
 	MaxTokens       int       `json:"max_tokens,omitempty"`
 	Model           string    `json:"model"`
@@ -23,6 +29,32 @@ type OpenAI_Payload struct {
 	PresencePenalty float64   `json:"presence_penalty,omitempty"`
 	Messages        []Message `json:"messages"`
 	Stream          bool      `json:"stream,omitempty"`
+}
+
+type OpenAI_Vision_Payload struct {
+	MaxTokens       int     `json:"max_tokens,omitempty"`
+	Model           string  `json:"model"`
+	Temperature     float64 `json:"temperature,omitempty"`
+	TopP            float64 `json:"top_p,omitempty"`
+	PresencePenalty float64 `json:"presence_penalty,omitempty"`
+	Stream          bool    `json:"stream,omitempty"`
+	Messages        []any   `json:"messages"`
+}
+
+type VisionMessage struct {
+	Role    string                 `json:"role"`
+	Content []VisionMessageContent `json:"content"`
+}
+
+type VisionMessageContent struct {
+	Type     string                       `json:"type"`
+	Text     string                       `json:"text,omitempty"`
+	ImageURL VisionMessageContentImageURL `json:"image_url"`
+}
+
+type VisionMessageContentImageURL struct {
+	URL    string `json:"url"`
+	Detail string `json:"detail"`
 }
 
 type Message struct {
