@@ -77,31 +77,7 @@ gpt-3.5-turbo:yi-34b-chat,gpt-4:yi-34b-chat
 
 ### GPT4 Vision
 
-
-如果你已经拥有了 Azure GPT4 Vision，并且想要使用 OpenAI API 的接口格式来进行调用，我们可以在使用 `azure` 服务类型时，设置 `AZURE_VISION` 的数值为 `true|1|on|yes` 任意值，激活 Vision API。
-
-```bash
-AZURE_VISION=true
-```
-
-调用方法很简单，除了使用 SDK 之外，同样可以使用 `curl`：
-
-```bash
-curl -v http://127.0.0.1:8080/v1/chat/completions \
-    -H "Content-Type: application/json" \
-    -H "Authorization: Bearer 123" \
-    -d '{
-        "model": "gpt-4v",
-        "messages":[
-          {"role":"system","content":"You are a helpful assistant."},
-          {"role":"user","content":[
-            {"type":"text","text":"Describe this picture:"},
-            { "type": "image_url", "image_url": { "url": "https://learn.microsoft.com/azure/ai-services/computer-vision/media/quickstarts/presentation.png", "detail": "high" }}
-          ]}
-        ]
-    }'
-```
-
+如果你已经拥有了 Azure GPT Vision，除了使用 SDK 调用之外，你也可以参考这篇文档，使用 `curl` 进行调用：[GPT Vision](./example/gpt-vision.md)。
 
 ## 容器快速上手
 
