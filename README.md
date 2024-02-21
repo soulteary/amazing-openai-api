@@ -151,6 +151,8 @@ AZURE_MODEL_ALIAS=gpt-3.5-turbo:gpt-35,gpt-4:gpt-35
 AZURE_ENDPOINT=https://<你的 Endpoint 地址>.openai.azure.com/ AZURE_MODEL_ALIAS=gpt-3.5-turbo:gpt-35 ./amazing-openai-api 
 ```
 
+如果你希望自己指定特别的 API Version，可以指定 `AZURE_IGNORE_API_VERSION_CHECK=true` 来强制忽略程序本身的 API Version 有效性验证。
+
 ### GPT4 Vision
 
 如果你已经拥有了 Azure GPT Vision，除了使用 SDK 调用之外，你也可以参考这篇文档，使用 `curl` 进行调用：[GPT Vision](./example/gpt-vision.md)。
