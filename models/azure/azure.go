@@ -34,18 +34,22 @@ func Init() (err error) {
 
 	// azure openai api version
 	apiVersion := fn.GetStringOrDefaultFromEnv(ENV_AZURE_API_VER, DEFAULT_AZURE_API_VER)
-	// azure openai api versions supported
-	// https://learn.microsoft.com/en-us/azure/ai-services/openai/reference
-	if apiVersion != "2022-12-01" &&
-		apiVersion != "2023-03-15-preview" &&
-		apiVersion != "2023-05-15" &&
-		apiVersion != "2023-06-01-preview" &&
-		apiVersion != "2023-07-01-preview" &&
-		apiVersion != "2023-08-01-preview" &&
-		apiVersion != "2023-09-01-preview" &&
-		apiVersion != "2023-12-01-preview" &&
-		apiVersion != "2024-02-15-preview" {
-		apiVersion = DEFAULT_AZURE_API_VER
+
+	ignoreAPIVersionCheck := fn.GetBoolOrDefaultFromEnv(ENV_IGNORE_API_VERSION_CHECK, false)
+	if !ignoreAPIVersionCheck {
+		// azure openai api versions supported
+		// https://learn.microsoft.com/en-us/azure/ai-services/openai/reference
+		if apiVersion != "2022-12-01" &&
+			apiVersion != "2023-03-15-preview" &&
+			apiVersion != "2023-05-15" &&
+			apiVersion != "2023-06-01-preview" &&
+			apiVersion != "2023-07-01-preview" &&
+			apiVersion != "2023-08-01-preview" &&
+			apiVersion != "2023-09-01-preview" &&
+			apiVersion != "2023-12-01-preview" &&
+			apiVersion != "2024-02-15-preview" {
+			apiVersion = DEFAULT_AZURE_API_VER
+		}
 	}
 	modelConfig.Version = apiVersion
 
