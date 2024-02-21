@@ -175,6 +175,8 @@ AZURE_MODEL_ALIAS
 # (可选) Azure 网络代理
 AZURE_HTTP_PROXY
 AZURE_SOCKS_PROXY
+# (可选) 忽略 Azure API Version 检查，默认 false，始终检查
+AZURE_IGNORE_API_VERSION_CHECK
 ```
 
 ## YI (零一万物)
