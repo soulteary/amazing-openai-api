@@ -42,7 +42,9 @@ func Init() (err error) {
 		apiVersion != "2023-06-01-preview" &&
 		apiVersion != "2023-07-01-preview" &&
 		apiVersion != "2023-08-01-preview" &&
-		apiVersion != "2023-09-01-preview" {
+		apiVersion != "2023-09-01-preview" &&
+		apiVersion != "2023-12-01-preview" &&
+		apiVersion != "2024-02-15-preview" {
 		apiVersion = DEFAULT_AZURE_API_VER
 	}
 	modelConfig.Version = apiVersion
